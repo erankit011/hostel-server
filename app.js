@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import rateLimit from "express-rate-limit";
 import { globalErrorHandler } from "./middlewares/error/error.middleware.js";
 import authRouter from "./router/auth.router.js";
 import profileRouter from "./router/profile.router.js";
@@ -43,6 +44,18 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "Active", timestamp: new Date().toISOString() });
 });
+
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50, // Limit each IP to 50 requests per `window` (here, per 15 minutes)
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  message: { success: false, message: "Too many requests from this IP, please try again after 15 minutes" }
+});
+
+// Apply rate limiter to all /api routes
+app.use("/api", limiter);
 
 // Auth routes
 app.use("/api/v1/auth", authRouter);

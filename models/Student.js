@@ -66,8 +66,21 @@ const Student = sequelize.define(
     underscored: true,
     tableName: "students",
     indexes: [
-      { unique: true, fields: ["tenant_id", "enrollment_no"] }
-    ]
+      { unique: true, fields: ["tenant_id", "enrollment_no"] },
+      { unique: true, fields: ["tenant_id", "email"] }
+    ],
+    hooks: {
+      beforeDestroy: async (student, options) => {
+        const suffix = `_deleted_${Date.now()}`;
+        if (student.enrollmentNo) {
+          student.enrollmentNo = student.enrollmentNo.slice(0, 50 - suffix.length) + suffix;
+        }
+        if (student.email) {
+          student.email = student.email.slice(0, 255 - suffix.length) + suffix;
+        }
+        await student.save({ transaction: options.transaction, hooks: false });
+      }
+    }
   }
 );
 

@@ -34,7 +34,15 @@ const Floor = sequelize.define(
     tableName: "floors",
     indexes: [
       { unique: true, fields: ["tenant_id", "floor_number"] }
-    ]
+    ],
+    hooks: {
+      beforeDestroy: async (floor, options) => {
+        if (floor.floorNumber !== null && floor.floorNumber !== undefined) {
+          floor.floorNumber = -(Date.now() % 1000000000);
+        }
+        await floor.save({ transaction: options.transaction, hooks: false });
+      }
+    }
   }
 );
 

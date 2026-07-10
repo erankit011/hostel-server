@@ -62,11 +62,11 @@ const User = sequelize.define(
     },
     hooks: {
       beforeDestroy: async (user, options) => {
-        const suffix = `_deleted_${Date.now()}`;
+        const suffix = `_DELETED_${Date.now()}`;
         if (user.email) {
           user.email = user.email.slice(0, 255 - suffix.length) + suffix;
         }
-        await user.save({ transaction: options.transaction, hooks: false });
+        await user.save({ transaction: options.transaction, hooks: false, validate: false });
       }
     }
   }

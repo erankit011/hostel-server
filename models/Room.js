@@ -51,11 +51,11 @@ const Room = sequelize.define(
     ],
     hooks: {
       beforeDestroy: async (room, options) => {
-        const suffix = `_del_${Date.now().toString().slice(-6)}`;
+        const suffix = `_DELETED_${Date.now().toString().slice(-6)}`;
         if (room.roomNumber) {
           room.roomNumber = room.roomNumber.slice(0, 20 - suffix.length) + suffix;
         }
-        await room.save({ transaction: options.transaction, hooks: false });
+        await room.save({ transaction: options.transaction, hooks: false, validate: false });
       }
     }
   }

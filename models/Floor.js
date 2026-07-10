@@ -40,7 +40,7 @@ const Floor = sequelize.define(
         if (floor.floorNumber !== null && floor.floorNumber !== undefined) {
           floor.floorNumber = -(Date.now() % 1000000000);
         }
-        await floor.save({ transaction: options.transaction, hooks: false });
+        await floor.save({ transaction: options.transaction, hooks: false, validate: false });
       }
     }
   }

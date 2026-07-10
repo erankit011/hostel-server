@@ -48,7 +48,16 @@ const Room = sequelize.define(
     tableName: "rooms",
     indexes: [
       { unique: true, fields: ["tenant_id", "room_number", "floor_id"] }
-    ]
+    ],
+    hooks: {
+      beforeDestroy: async (room, options) => {
+        const suffix = `_del_${Date.now().toString().slice(-6)}`;
+        if (room.roomNumber) {
+          room.roomNumber = room.roomNumber.slice(0, 20 - suffix.length) + suffix;
+        }
+        await room.save({ transaction: options.transaction, hooks: false });
+      }
+    }
   }
 );
 

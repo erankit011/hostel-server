@@ -103,6 +103,18 @@ const Tenant = sequelize.define('Tenant', {
     paranoid: true,
     underscored: true,
     tableName: 'tenants',
+    hooks: {
+      beforeDestroy: async (tenant, options) => {
+        const suffix = `_deleted_${Date.now()}`;
+        if (tenant.officialEmail) {
+          tenant.officialEmail = tenant.officialEmail.slice(0, 255 - suffix.length) + suffix;
+        }
+        if (tenant.subdomain) {
+          tenant.subdomain = tenant.subdomain.slice(0, 63 - suffix.length) + suffix;
+        }
+        await tenant.save({ transaction: options.transaction, hooks: false });
+      }
+    }
 });
 
 export default Tenant;
